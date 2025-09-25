@@ -1,0 +1,11 @@
+# requirements.txt
+# 百家乐发牌系统依赖包
+
+# 串口通信
+pyserial==3.5
+
+# MySQL数据库连接
+pymysql==1.1.0
+
+# 可选：用于更好的数据库连接管理
+# mysql-connector-python==8.0.33
