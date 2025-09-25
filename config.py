@@ -24,10 +24,14 @@ SERIAL_RECONNECT_INTERVAL = 2  # 串口重连间隔(秒)
 DB_RECONNECT_INTERVAL = 5      # 数据库重连间隔(秒)
 MAX_RECONNECT_ATTEMPTS = 10    # 最大重连次数
 
+# ========== 新增：游戏超时配置 ==========
+GAME_TIMEOUT = 180  # 游戏超时时间(秒)，默认180秒
+CARD_SCAN_TIMEOUT = 60  # 单张牌扫描超时(秒)
+
 # 日志配置
 LOG_LEVEL = 'INFO'
 LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-LOG_FILE = 'baccarat_system.log'
+# LOG_FILE = 'baccarat_system.log'  # 注释掉，不生成日志文件
 
 # 牌值映射
 CARD_MAPPING = {
@@ -91,3 +95,39 @@ CARD_MAPPING = {
     'D12': {'suit': '方块', 'rank': 'Q', 'value': 0, 'display': '♦Q'},
     'D13': {'suit': '方块', 'rank': 'K', 'value': 0, 'display': '♦K'},
 }
+
+# ========== 新增：牌值格式转换映射 ==========
+def convert_card_to_db_format(card_code):
+    """
+    将卡片代码转换为数据库格式
+    例如: 'D12' -> '12|f'
+    
+    Args:
+        card_code: 原始卡片代码 (如 'D12', 'A01')
+    
+    Returns:
+        str: 数据库格式 (如 '12|f', '1|h')
+    """
+    if not card_code:
+        return '0|0'
+    
+    card_code = card_code.strip().upper()
+    
+    # 花色映射
+    suit_map = {
+        'A': 'h',  # 黑桃 -> h
+        'H': 'r',  # 红心 -> r
+        'C': 'm',  # 梅花 -> m
+        'D': 'f'   # 方块 -> f
+    }
+    
+    if len(card_code) >= 3 and card_code[0] in suit_map:
+        suit = suit_map[card_code[0]]
+        # 提取数字部分并转换为整数
+        try:
+            rank = int(card_code[1:])
+            return f"{rank}|{suit}"
+        except ValueError:
+            return '0|0'
+    
+    return '0|0'
